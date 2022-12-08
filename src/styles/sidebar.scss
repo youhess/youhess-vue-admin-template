@@ -71,13 +71,12 @@
     // menu hover
     .submenu-title-noDropdown,
     .el-submenu__title {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-
       &:hover {
         background-color: $menuHover !important;
       }
+
+      display: flex;
+      align-items: center;
     }
 
     .is-active>.el-submenu__title {
@@ -88,9 +87,8 @@
     & .el-submenu .el-menu-item {
       min-width: $sideBarWidth !important;
       background-color: $subMenuBg !important;
-      display: flex;
+      display: flex !important;
       align-items: center;
-      gap: 12px;
 
       &:hover {
         background-color: $subMenuHover !important;
@@ -113,6 +111,8 @@
 
       .el-tooltip {
         padding: 0 !important;
+        display: flex !important;
+        align-items: center;
 
         .svg-icon {
           margin-left: 20px;
@@ -207,6 +207,9 @@
 
   .nest-menu .el-submenu>.el-submenu__title,
   .el-menu-item {
+    display: flex;
+    align-items: center;
+
     &:hover {
       // you can use $subMenuHover
       background-color: $menuHover !important;
