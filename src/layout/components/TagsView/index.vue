@@ -17,6 +17,7 @@
         @contextmenu.prevent.native="openMenu(tag, $event)"
       >
         {{ tag.title }}
+        <!-- 根据 router.js中的 meta.affix 来确定是否固定 tagsView-->
         <span
           v-if="!isAffix(tag)"
           class="el-icon-close"
@@ -24,6 +25,7 @@
         />
       </router-link>
     </scroll-pane>
+    <!-- 右键鼠标召唤出功能列表 -->
     <ul
       v-show="visible"
       :style="{ left: left + 'px', top: top + 'px' }"

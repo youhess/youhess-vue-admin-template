@@ -36,7 +36,10 @@ import Layout from "@/layout";
 //   component: Layout,
 //   redirect: "/example/table",
 //   name: "Example",
+//  // meta.icon 可以后是svg也可以是el-icon的icon根据自己情况去调整
 //   meta: { title: "Example", icon: "el-icon-s-help" },
+//  // 固定 tagsView
+//  affix: true,
 //   children: [
 //     {
 //       path: "table",
@@ -82,6 +85,8 @@ export const constantRoutes = [
           title: "首页",
           icon: "dashboard",
           customInfo: "获取的路由是可以自定义的！",
+          // 固定 tagsView
+          affix: true,
         },
       },
     ],
@@ -92,13 +97,14 @@ export const constantRoutes = [
     component: Layout,
     redirect: "/example/iTemplate",
     name: "Example",
+    //
     meta: { title: "示例", icon: "el-icon-s-help" },
     children: [
       {
         path: "iTemplate",
         name: "ITemplate",
         component: () => import("@/views/iTemplate/index"),
-        meta: { title: "模板", icon: "table" },
+        meta: { title: "普通表格模板", icon: "table" },
       },
       {
         path: "tree",
