@@ -11,7 +11,7 @@
         v-for="item in searchForm"
         :label="item.label"
         :key="item.prop"
-        class="formItem"
+        class="form-item"
       >
         <!-- 输入框 -->
         <el-input
@@ -161,7 +161,7 @@
       <el-form-item
         inline
         v-if="isHandle"
-        class="formItem"
+        class="form-item"
         v-for="(item, index) in searchHandle"
         :key="index"
       >
@@ -216,7 +216,9 @@ export default {
     },
   },
   data() {
-    return {};
+    return {
+      
+    };
   },
   methods: {},
 };
@@ -226,7 +228,7 @@ export default {
   display: flex;
   align-items: center;
   .form {
-    .formItem {
+    .form-item {
       // .el-form-item__label {
       //   width: 80px !important;
       // }

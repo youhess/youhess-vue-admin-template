@@ -113,7 +113,7 @@ export default {
         radio: 0,
         radiobutton: 0,
         slider: 0,
-        radiobutton: "",
+        radiobutton: 0,
         checkbox: [],
         switch: true,
         date: "",
@@ -339,9 +339,17 @@ export default {
     this.getTable();
   },
   methods: {
+    //搜索
+    handleReset() {
+      for (var i in this.searchData) {
+        this.$set(this.searchData, i, "");
+      }
+      this.getTable();
+    },
     // 表格搜索
     handleQuery() {
-      console.log("hello");
+      console.log("hello", this.searchData);
+      this.getTable();
     },
     //获取表格数据
     async getTable() {
