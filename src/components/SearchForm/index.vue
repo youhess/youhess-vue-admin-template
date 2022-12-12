@@ -1,76 +1,179 @@
 <template>
-  <div class="ces-search">
-    <el-form class="form" ref="refForm" :size="formSize" inline :label-width="labelWidth">
-      <el-form-item v-for="item in searchForm" :label="item.label" :key="item.prop" class="formItem">
+  <div class="search-form">
+    <el-form
+      class="form"
+      ref="refForm"
+      :size="formSize"
+      inline
+      :label-width="labelWidth"
+    >
+      <el-form-item
+        v-for="item in searchForm"
+        :label="item.label"
+        :key="item.prop"
+        class="formItem"
+      >
         <!-- 输入框 -->
-        <el-input v-if="item.type === 'Input'" v-model="searchData[item.prop]" :style="{ width: item.width }"
-          :size="item.size" :placeholder="item.placeholder" @change="item.change && item.change(searchData[item.prop])"
-          clearable></el-input>
+        <el-input
+          v-if="item.type === 'Input'"
+          v-model="searchData[item.prop]"
+          :style="{ width: item.width }"
+          :size="itemSize ? itemSize : item.size"
+          :placeholder="item.placeholder"
+          @change="item.change && item.change(searchData[item.prop])"
+          :clearable="clearable"
+        ></el-input>
         <!-- 下拉框 -->
-        <el-select v-if="item.type === 'Select'" v-model="searchData[item.prop]"
-          @change="item.change && item.change(searchData[item.prop])" :size="item.size" :style="{ width: item.width }"
-          :placeholder="item.placeholder" :filterable="item.filterable" :multiple="item.multiple" :remote="item.remote"
-          :reserve-keyword="item.reserveKeyword" clearable :remote-method="
+        <el-select
+          v-if="item.type === 'Select'"
+          v-model="searchData[item.prop]"
+          @change="item.change && item.change(searchData[item.prop])"
+          :size="itemSize ? itemSize : item.size"
+          :style="{ width: item.width }"
+          :placeholder="item.placeholder"
+          :filterable="item.filterable"
+          :multiple="item.multiple"
+          :remote="item.remote"
+          :reserve-keyword="item.reserveKeyword"
+          :clearable="clearable"
+          :remote-method="
             item.remoteMethod && item.remoteMethod(searchData[item.prop])
-          ">
-          <el-option v-for="op in item.options" :label="op.label" :value="op.value" :key="op.value"></el-option>
+          "
+        >
+          <el-option
+            v-for="op in item.options"
+            :label="op.label"
+            :value="op.value"
+            :key="op.value"
+          ></el-option>
         </el-select>
         <!-- 单选 -->
-        <el-radio-group v-if="item.type === 'Radio'" @change="item.change && item.change(searchData[item.prop])"
-          v-model="searchData[item.prop]" :size="item.size">
-          <el-radio v-for="ra in item.radios" :label="ra.value" :key="ra.value">{{ ra.label }}</el-radio>
+        <el-radio-group
+          v-if="item.type === 'Radio'"
+          @change="item.change && item.change(searchData[item.prop])"
+          v-model="searchData[item.prop]"
+          :size="itemSize ? itemSize : item.size"
+          :style="{ width: item.width }"
+        >
+          <el-radio
+            v-for="ra in item.radios"
+            :label="ra.value"
+            :key="ra.value"
+            >{{ ra.label }}</el-radio
+          >
         </el-radio-group>
         <!-- 单选按钮 -->
-        <el-radio-group v-if="item.type === 'RadioButton'" v-model="searchData[item.prop]" :size="item.size"
-          @change="item.change && item.change(searchData[item.prop])">
-          <el-radio-button v-for="ra in item.radios" :label="ra.value" :key="ra.value">{{ ra.label }}</el-radio-button>
+        <el-radio-group
+          v-if="item.type === 'RadioButton'"
+          v-model="searchData[item.prop]"
+          :size="itemSize ? itemSize : item.size"
+          :style="{ width: item.width }"
+          @change="item.change && item.change(searchData[item.prop])"
+        >
+          <el-radio-button
+            v-for="ra in item.radios"
+            :label="ra.value"
+            :key="ra.value"
+            >{{ ra.label }}</el-radio-button
+          >
         </el-radio-group>
         <!-- 复选框 -->
-        <el-checkbox-group v-if="item.type === 'Checkbox'" v-model="searchData[item.prop]"
-          @change="item.change && item.change(searchData[item.prop])" :size="item.size" clearable>
-          <el-checkbox v-for="ch in item.checkboxs" :label="ch.value" :key="ch.value">{{ ch.label }}</el-checkbox>
+        <el-checkbox-group
+          v-if="item.type === 'Checkbox'"
+          v-model="searchData[item.prop]"
+          @change="item.change && item.change(searchData[item.prop])"
+          :size="itemSize ? itemSize : item.size"
+          :clearable="clearable"
+          :style="{ width: item.width }"
+        >
+          <el-checkbox
+            v-for="ch in item.checkboxs"
+            :label="ch.value"
+            :key="ch.value"
+            >{{ ch.label }}</el-checkbox
+          >
         </el-checkbox-group>
         <!-- 日期 -->
-        <el-date-picker v-if="item.type === 'Date'" v-model="searchData[item.prop]"
-          @change="item.change && item.change(searchData[item.prop])" :size="item.size"></el-date-picker>
-        <!-- 时间 -->
-        <el-time-select v-if="item.type === 'Time'" v-model="searchData[item.prop]"
-          @change="item.change && item.change(searchData[item.prop])" type="" :size="item.size">
-        </el-time-select>
-        <!-- 日期时间 -->
-        <el-date-picker v-if="item.type === 'DateTime'" type="datetime" v-model="searchData[item.prop]"
+        <el-date-picker
+          v-if="item.type === 'Date'"
+          v-model="searchData[item.prop]"
+          :placeholder="item.placeholder"
           @change="item.change && item.change(searchData[item.prop])"
-          :disabled="item.disable && item.disable(searchData[item.prop])" :size="item.size"></el-date-picker>
+          :size="itemSize ? itemSize : item.size"
+          type="date"
+          :style="{ width: item.width }"
+          :picker-options="item.pickerOptions"
+        ></el-date-picker>
+        <!-- 时间 -->
+        <el-time-picker
+          v-if="item.type === 'Time'"
+          v-model="searchData[item.prop]"
+          @change="item.change && item.change(searchData[item.prop])"
+          :size="itemSize ? itemSize : item.size"
+          :picker-options="item.pickerOptions"
+          :placeholder="item.placeholder"
+          :style="{ width: item.width }"
+        >
+        </el-time-picker>
+        <!-- 日期时间 -->
+        <el-date-picker
+          v-if="item.type === 'DateTime'"
+          type="datetime"
+          :placeholder="item.placeholder"
+          v-model="searchData[item.prop]"
+          @change="item.change && item.change(searchData[item.prop])"
+          :disabled="item.disable && item.disable(searchData[item.prop])"
+          :picker-options="item.pickerOptions"
+          :size="itemSize ? itemSize : item.size"
+          :style="{ width: item.width }"
+        ></el-date-picker>
         <!-- 日期范围 -->
-        <el-date-picker v-if="item.type === 'datetimerange'" type="datetimerange" v-model="searchData[item.prop]"
-          range-separator="~" :start-placeholder="item.startPlaceholder" :end-placeholder="item.endPlaceholder"
-          :value-format="item.valueFormat" :picker-options="item.pickerOptions" :size="item.size"
-          @change="item.change && item.change(searchData[item.prop])">
+        <el-date-picker
+          v-if="item.type === 'Datetimerange'"
+          type="datetimerange"
+          v-model="searchData[item.prop]"
+          range-separator="~"
+          :start-placeholder="item.startPlaceholder"
+          :end-placeholder="item.endPlaceholder"
+          :value-format="item.valueFormat"
+          :picker-options="item.pickerOptions"
+          :size="itemSize ? itemSize : item.size"
+          @change="item.change && item.change(searchData[item.prop])"
+        >
         </el-date-picker>
         <!-- 滑块 -->
-        <!-- <el-slider v-if="item.type==='Slider'" v-model="searchData[item.prop]"></el-slider> -->
+        <el-slider
+          v-if="item.type === 'Slider'"
+          v-model="searchData[item.prop]"
+          :size="itemSize ? itemSize : item.size"
+          :style="{ width: item.width }"
+          @change="item.change && item.change(searchData[item.prop])"
+        ></el-slider>
         <!-- 开关 -->
-        <el-switch v-if="item.type === 'Switch'" v-model="searchData[item.prop]" :size="item.size"
-          @change="item.change && item.change(searchData[item.prop])"></el-switch>
+        <div v-if="item.type === 'Switch'" :style="{ width: item.width }">
+          <el-switch
+            v-model="searchData[item.prop]"
+            :size="itemSize ? itemSize : item.size"
+            @change="item.change && item.change(searchData[item.prop])"
+          ></el-switch>
+        </div>
       </el-form-item>
-      <el-form-item inline v-if="isHandle" class="formItem" v-for="(item, index) in searchHandle" :key="index">
-        <el-button v-if="item.isPermitted ? item.isPermitted() : true" :type="item.type" :size="item.size || formSize" @click="item.handle()">{{ item.label }}</el-button>
-      </el-form-item>
-    </el-form>
-    <!-- <el-form class="formT" :size="formSize" inline v-if="isHandle">
       <el-form-item
-        class="formTItem"
+        inline
+        v-if="isHandle"
+        class="formItem"
         v-for="(item, index) in searchHandle"
         :key="index"
       >
         <el-button
+          v-if="item.isPermitted ? item.isPermitted() : true"
           :type="item.type"
-          :size="item.size || formSize"
+          :size="itemSize ? itemSize : item.size || formSize"
           @click="item.handle()"
           >{{ item.label }}</el-button
         >
       </el-form-item>
-    </el-form> -->
+    </el-form>
   </div>
 </template>
 
@@ -80,61 +183,55 @@ export default {
   props: {
     isHandle: {
       type: Boolean,
-      default: true
+      default: true,
     },
     labelWidth: {
       type: String,
-      default: "50px"
+      default: "50px",
     },
+    // 表单大小设置
     formSize: {
       type: String,
-      default: "mini"
+      default: "mini",
+    },
+    itemSize: {
+      type: String,
+      default: "",
     },
     searchForm: {
       type: Array,
-      default: []
+      default: [],
     },
     searchHandle: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     searchData: {
       type: Object,
-      default: {}
-    }
+      default: {},
+    },
+    clearable: {
+      type: Boolean,
+      default: true,
+    },
   },
   data() {
     return {};
   },
-  methods: {}
+  methods: {},
 };
 </script>
 <style lang="scss">
-.ces-search {
+.search-form {
   display: flex;
-  // justify-content: space-between;
-
   align-items: center;
-
   .form {
-    // flex-shrink: 0;
-  }
-
-  // .formT {
-  //   flex-shrink: 0;
-  // }
-  .formItem {
-    .el-form-item__label {
-      width: 80px !important;
+    .formItem {
+      // .el-form-item__label {
+      //   width: 80px !important;
+      // }
+      margin-right: 12px;
     }
-
-    // formItem 间距
-    margin-right: 12px;
   }
-
-  // .formTItem {
-  //   // formItem 间距
-  //   margin-right: 12px;
-  // }
 }
 </style>

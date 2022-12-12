@@ -8,7 +8,9 @@
         <search-form
           ref="form"
           formSize="mini"
-          labelWidth="50px"
+          itemSize="small"
+          labelWidth="120px"
+          :clearable="true"
           :searchData="searchData"
           :searchForm="searchForm"
           :searchHandle="searchHandle"
@@ -81,80 +83,139 @@ export default {
     DynamicForm,
   },
   data() {
-    let types = [
+    let selectItems = [
       { label: "未知", value: 0 },
       { label: "种类一", value: 1 },
       { label: "种类二", value: 2 },
+    ];
+    let radioItems = [
+      { label: "未知", value: 0 },
+      { label: "一", value: 1 },
+      { label: "二", value: 2 },
+    ];
+    let radioButtonItems = [
+      { label: "未知", value: 0 },
+      { label: "一", value: 1 },
+      { label: "二", value: 2 },
+    ];
+    let checkboxItems = [
+      { label: "未知", value: 0 },
+      { label: "一", value: 1 },
+      { label: "二", value: 2 },
     ];
     return {
       deleteDialog: { title: "提示", visible: false, row: "" },
       // 搜索=========================================
       searchData: {
         //查询表单的对应的值
-        name: "",
-        mobile: "",
-        idCard: "",
+        text: "",
         kindId: "",
-        type: "",
-        roleIds: [],
-        isHasFace: "",
-        departmentId: "",
+        radio: 0,
+        radiobutton: 0,
+        slider: 0,
+        radiobutton: "",
+        checkbox: [],
+        switch: true,
+        date: "",
+        time: "",
+        dateTime: "",
+        datetimerange: [],
       },
       searchForm: [
-        //这里是渲染查询表单的表头和类型的数据
         {
+          label: "输入框",
           type: "Input",
-          prop: "name",
+          prop: "text",
           width: "200px",
-          placeholder: "请输入姓名...",
-          size: "small",
+          placeholder: "请输入文本",
           change: this.handleQuery,
         },
         {
-          type: "Input",
-          prop: "mobile",
-          width: "200px",
-          placeholder: "请输入手机号...",
-          size: "small",
-          change: this.handleQuery,
-        },
-        {
-          type: "Input",
-          prop: "idCard",
-          width: "200px",
-          placeholder: "请输入身份证...",
-          size: "small",
-          change: this.handleQuery,
-        },
-        {
+          label: "下拉框",
           type: "Select",
-          prop: "kindId",
+          prop: "selectItem",
           width: "200px",
-          options: [],
-          change: (row) => "",
-          placeholder: "请选择工种...",
-          size: "small",
+          options: selectItems,
+          change: this.handleQuery,
+          placeholder: "请输入下拉选择项",
+          multiple: true,
+          reserveKeyword: true,
+          filterable: true,
+        },
+        {
+          label: "单选框",
+          type: "Radio",
+          prop: "radio",
+          width: "200px",
+          change: this.handleQuery,
+          radios: radioItems,
+        },
+        {
+          label: "单选框按钮",
+          type: "RadioButton",
+          prop: "radiobutton",
+          width: "200px",
+          change: this.handleQuery,
+          radios: radioButtonItems,
+        },
+        {
+          label: "复选框",
+          type: "Checkbox",
+          prop: "checkbox",
+          width: "200px",
+          change: this.handleQuery,
+          checkboxs: checkboxItems,
+        },
+        {
+          label: "日期",
+          type: "Date",
+          prop: "date",
+          width: "200px",
+          placeholder: "请选择日期",
+          change: this.handleQuery,
+          pickerOptions: {},
+        },
+        {
+          label: "时间",
+          type: "Time",
+          prop: "time",
+          width: "200px",
+          placeholder: "请选择时间",
+          change: this.handleQuery,
+          pickerOptions: {},
+        },
+        {
+          label: "滑块",
+          type: "Slider",
+          prop: "slider",
+          width: "200px",
           change: this.handleQuery,
         },
         {
-          type: "Select",
-          prop: "type",
+          label: "开关",
+          type: "Switch",
+          prop: "switch",
           width: "200px",
-          options: types,
-          change: (row) => "",
-          placeholder: "请选择人员类型...",
-          size: "small",
           change: this.handleQuery,
         },
         {
-          type: "Select",
-          prop: "roleIds",
+          label: "日期时间",
+          type: "DateTime",
+          prop: "dateTime",
+          placeholder: "请选择日期时间",
           width: "200px",
-          options: [],
-          change: (row) => "",
-          placeholder: "请选择角色...",
-          size: "small",
           change: this.handleQuery,
+          pickerOptions: {},
+        },
+        {
+          label: "日期时间选择器",
+          type: "Datetimerange",
+          prop: "datetimerange",
+          startPlaceholder: "请输入开始日期时间",
+          endPlaceholder: "请输入截止时间",
+          valueFormat: "yyyy-MM-dd HH:mm:ss",
+          change: this.handleQuery,
+          pickerOptions: {},
         },
       ],
       searchHandle: [
@@ -278,6 +339,10 @@ export default {
     this.getTable();
   },
   methods: {
+    // 表格搜索
+    handleQuery() {
+      console.log("hello");
+    },
     //获取表格数据
     async getTable() {
       try {

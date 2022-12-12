@@ -88,8 +88,8 @@ $bg: #2d3a4b;
 $dark_gray: #889aa4;
 $light_gray: #eee;
 
-$primary-color: #a531dc;
-$secondary-color: #4300b1;
+$primary-color: #02ecf8;
+$secondary-color: #23b3bb;
 
 .login-body {
   height: 100vh;
