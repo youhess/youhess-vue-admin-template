@@ -11,7 +11,7 @@
           itemSize="small"
           labelWidth="120px"
           :clearable="true"
-          :searchData="searchData"
+          v-model="searchData"
           :searchForm="searchForm"
           :searchHandle="searchHandle"
         >
@@ -35,7 +35,9 @@
           @refresh="getTable"
           :isSelection="true"
           :reserveSection="true"
-          @handleSelectionChange="handleSelectionChange"
+          @select="selection"
+          @selectionChange="selectionChange"
+          @rowClick="rowClick"
         >
         </custom-table>
       </div>
@@ -249,7 +251,6 @@ export default {
         //   formatterTooltip: this.formatterPermissionTooltip
         // },
         { label: "作者", prop: "author" },
-
         { label: "显示时间", prop: "display_time" },
         { label: "数量", prop: "pageviews" },
         { label: "状态", prop: "status" },
@@ -257,9 +258,15 @@ export default {
         {
           label: "操作",
           type: "Button",
-          width: "200",
+          width: "100",
           fixed: "right",
           name: "option",
+          isHeaderOptions: {
+            isCustomHeader: true,
+            //  是否开启 表格过滤
+            isFilterColumn: true,
+            filterColumnIcon: "el-icon-s-operation",
+          },
           btnList: [
             {
               label: "删 除",
@@ -273,26 +280,6 @@ export default {
               size: "small",
               handle: this.handleDetailDrawer,
             },
-            {
-              label: "编 辑",
-              type: "text",
-              size: "small",
-              handle: this.handleFormDrawer,
-            },
-            {
-              label: "密 码",
-              type: "text",
-              size: "small",
-              handle: this.handlePassWordDrawer,
-            },
-            // {
-            //   label: "删 除",
-            //   type: "text",
-            //   size: "small",
-            //   handle: this.handleDelectDialog,
-            //   isPermitted: () =>
-            //     this.$btnPermission.isButtonPermission("code-c7")
-            // }
           ],
         },
       ],
@@ -339,16 +326,38 @@ export default {
     this.getTable();
   },
   methods: {
-    //搜索
+    // 表格组件-----------------------------------------------
+    //  表格选择
+    selection(rows, row) {
+      console.log(" @select:被选中项 rows", rows);
+      console.log(" @select:被选中当前项 row", row);
+    },
+    selectionChange(val) {
+      console.log("@selectionChange:被选中项 rows", val);
+      this.selectedItems = val;
+    },
+    //  表格单击
+    rowClick(row) {
+      console.log("@rowClick:被单击选项", row);
+    },
+    //搜索组件-------------------------------------------------
     handleReset() {
-      for (var i in this.searchData) {
-        this.$set(this.searchData, i, "");
+      for (var key in this.searchData) {
+        if (typeof this.searchData[key] == "number") {
+          this.$set(this.searchData, key, 0);
+        } else if (typeof this.searchData[key] == "boolean") {
+          this.$set(this.searchData, key, 0);
+        } else if (Array.isArray(this.searchData[key])) {
+          this.$set(this.searchData, key, []);
+        } else {
+          this.$set(this.searchData, key, "");
+        }
       }
       this.getTable();
     },
     // 表格搜索
     handleQuery() {
-      console.log("hello", this.searchData);
+      console.log("查询！", this.searchData);
       this.getTable();
     },
     //获取表格数据
@@ -378,10 +387,7 @@ export default {
         this.tableLoading = false;
       }
     },
-    handleSelectionChange(val) {
-      console.log("val", val);
-      this.selectedItems = val;
-    },
+
     // 删除弹窗=========================================
     closeDeleteDialog() {
       this.deleteDialog.visible = false;

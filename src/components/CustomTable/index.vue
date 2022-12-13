@@ -1,6 +1,7 @@
 <!--表格组件 -->
 <template>
   <section class="ces-table-page">
+    {{ filterColumnItems }}
     <!-- 表格操作按钮 -->
     <section
       class="ces-handle"
@@ -8,7 +9,7 @@
     >
       <el-button
         v-for="(item, index) in tableHandles"
-        v-if="item.isPermitted ? item.isPermitted() : true"
+        v-if="item.isShown ? item.isShown() : true"
         :size="item.size || size"
         :type="item.type"
         :icon="item.icon"
@@ -21,27 +22,27 @@
     <!-- 数据表格 -->
     <section class="ces-table">
       <el-table
-        :header-cell-style="{ background: '#fafafa', color: '#606266' }"
+        ref="cesTable"
+        style="width: 100%"
+        v-loading="loading"
+        :header-cell-style="headerCellStyle"
         :data="tableData"
         :size="size"
         :border="isBorder"
         :row-key="rowKey"
         :tree-props="treeProps"
-        @select="select"
-        @select-all="selectAll"
-        @selection-change="handleSelectionChange"
-        @row-click="rowClick"
-        v-loading="loading"
-        header-row-class-name="header_row_style"
         :defaultSelections="defaultSelections"
         :expand-row-keys="expandRowKeys"
-        ref="cesTable"
-        style="width: 100%"
-        :key="tableKey"
-        @cell-dblclick="tabClick"
         :row-class-name="tableRowClassName"
         :cell-class-name="tableCellClassName"
+        :key="tableKey"
+        @cell-dblclick="tabClick"
+        @select="select"
+        @select-all="selectAll"
+        @selection-change="selectionChange"
+        @row-click="rowClick"
       >
+        <!-- 选择项 -->
         <el-table-column
           v-if="isSelection"
           type="selection"
@@ -49,6 +50,7 @@
           align="center"
           width="50"
         ></el-table-column>
+        <!-- 序号 -->
         <el-table-column
           v-if="isIndex"
           type="index"
@@ -75,18 +77,73 @@
           :render-header="item.require ? renderHeader : null"
         >
           <!-- 自定表头 -->
-          <template slot="header" v-if="item.isCustomHeader">
-            <el-tooltip
-              class="item"
-              effect="dark"
-              :content="item.headerTooltipContent"
-              placement="top-start"
-            >
-              <span>
-                <span>{{ item.label }}</span>
-                <i class="el-icon-question"> </i>
-              </span>
-            </el-tooltip>
+          <template
+            slot="header"
+            v-if="
+              item.isHeaderOptions && item.isHeaderOptions['isCustomHeader']
+            "
+          >
+            <div style="display: flex; align-items: center; gap: 6px">
+              <div class="left-header-wrapper">
+                <!-- 启用 tooltip-->
+                <el-tooltip
+                  class="item"
+                  effect="dark"
+                  v-if="item.isHeaderOptions['isTooltip']"
+                  :content="item.isHeaderOptions['headerTooltipContent']"
+                  placement="top-start"
+                >
+                  <span style="display: flex; align-items: center; gap: 6px">
+                    <span>{{ item.label }}</span>
+                    <i :class="item.isHeaderOptions['icon']"></i>
+                  </span>
+                </el-tooltip>
+                <!-- 不起用tooltip -->
+                <div v-else>
+                  <span style="display: flex; align-items: center; gap: 6px">
+                    <span>{{ item.label }}</span>
+                    <i :class="item.isHeaderOptions['icon']"></i>
+                  </span>
+                </div>
+              </div>
+
+              <!-- 表格过滤 按钮 -->
+              <div
+                v-if="item.isHeaderOptions['isFilterColumn']"
+                style="flex: 1"
+                class="right-header-wrapper"
+                slot="reference"
+              >
+                <el-popover placement="right" width="150" trigger="click">
+                  <div slot="reference">
+                    <i
+                      v-if="
+                        item.isHeaderOptions['filterColumnIcon'] &&
+                        item.isHeaderOptions['filterColumnIcon'].includes(
+                          'el-icon'
+                        )
+                      "
+                      style="float: right; margin-right: 12px; cursor: pointer"
+                      :class="item.isHeaderOptions['filterColumnIcon']"
+                    ></i>
+                    <svg-icon
+                      v-else
+                      icon-class="{item.isHeaderOptions['filterColumnIcon']}"
+                    />
+                  </div>
+                  <div>
+                    <el-checkbox-group v-model="filterColumnItems">
+                      <el-checkbox
+                        :label="item.label"
+                        v-for="(item, index) in tableCols"
+                        :key="index"
+                        >{{ item.label }}</el-checkbox
+                      >
+                    </el-checkbox-group>
+                  </div>
+                </el-popover>
+              </div>
+            </div>
           </template>
           <template slot-scope="scope">
             <!-- html -->
@@ -99,7 +156,7 @@
               <el-button
                 v-for="(btn, index) in item.btnList"
                 :disabled="btn.isDisabled && btn.isDisabled(scope.row)"
-                v-if="btn.isPermitted ? btn.isPermitted() : true"
+                v-if="btn.isShown ? btn.isShown() : true"
                 :type="btn.type"
                 :size="btn.size || size"
                 :icon="btn.icon"
@@ -335,15 +392,9 @@
       </el-table>
     </section>
     <!-- 分页 -->
-    <section class="ces-pagination" v-if="isPagination">
+    <section class="ces-pagination-wrapper" v-if="isPagination">
       <el-pagination
-        style="
-          display: flex;
-          justify-content: center;
-          height: 100%;
-          align-items: center;
-          margin-bottom: 24px;
-        "
+        class="ces-pagination"
         @current-change="handleCurrentChange"
         @size-change="handleSizeChange"
         layout="total,sizes ,prev, pager, next,jumper"
@@ -409,12 +460,18 @@ export default {
       type: Object,
       default: () => ({ pageSize: 10, pageNum: 1, total: 0 }),
     },
+    headerCellStyle: {
+      type: Object,
+      default: () => ({ background: "#fafafa", color: "#606266" }),
+    },
   },
   data() {
     return {
       dbClickRowIndex: null, // 当前点击的行索引
       dbClickCellIndex: null, // 当前点击的列索引
       tabClickLabel: "", // 当前点击的列名
+      //
+      filterColumnItems: [],
     };
   },
   watch: {
@@ -436,7 +493,7 @@ export default {
   methods: {
     // 控制input显示 row 当前行 column 当前列
     tabClick(row, column, cell, event) {
-      console.log("row:", row);
+      console.log("@cell-dblclick:被选中的row:", row);
       // console.log("column:", column);
       // console.log("column.index:", column.index);
       // console.log("column.label:", column.label);
@@ -470,8 +527,8 @@ export default {
     selectAll(rows) {
       this.$emit("select", rows);
     },
-    handleSelectionChange(val) {
-      this.$emit("handleSelectionChange", val);
+    selectionChange(val) {
+      this.$emit("selectionChange", val);
     },
     rowClick(val) {
       this.$emit("rowClick", val);
@@ -536,5 +593,13 @@ export default {
 /* 修复loding居左的问题 */
 .el-loading-spinner {
   left: calc(50% - 25px);
+}
+
+.ces-pagination {
+  display: flex;
+  justify-content: center;
+  height: 100%;
+  align-items: center;
+  margin-bottom: 24px;
 }
 </style>

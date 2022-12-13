@@ -16,18 +16,18 @@
         <!-- 输入框 -->
         <el-input
           v-if="item.type === 'Input'"
-          v-model="searchData[item.prop]"
+          v-model="sonSearchData[item.prop]"
           :style="{ width: item.width }"
           :size="itemSize ? itemSize : item.size"
           :placeholder="item.placeholder"
-          @change="item.change && item.change(searchData[item.prop])"
+          @change="item.change && item.change(sonSearchData[item.prop])"
           :clearable="clearable"
         ></el-input>
         <!-- 下拉框 -->
         <el-select
           v-if="item.type === 'Select'"
-          v-model="searchData[item.prop]"
-          @change="item.change && item.change(searchData[item.prop])"
+          v-model="sonSearchData[item.prop]"
+          @change="item.change && item.change(sonSearchData[item.prop])"
           :size="itemSize ? itemSize : item.size"
           :style="{ width: item.width }"
           :placeholder="item.placeholder"
@@ -37,7 +37,7 @@
           :reserve-keyword="item.reserveKeyword"
           :clearable="clearable"
           :remote-method="
-            item.remoteMethod && item.remoteMethod(searchData[item.prop])
+            item.remoteMethod && item.remoteMethod(sonSearchData[item.prop])
           "
         >
           <el-option
@@ -50,8 +50,8 @@
         <!-- 单选 -->
         <el-radio-group
           v-if="item.type === 'Radio'"
-          @change="item.change && item.change(searchData[item.prop])"
-          v-model="searchData[item.prop]"
+          @change="item.change && item.change(sonSearchData[item.prop])"
+          v-model="sonSearchData[item.prop]"
           :size="itemSize ? itemSize : item.size"
           :style="{ width: item.width }"
         >
@@ -65,10 +65,10 @@
         <!-- 单选按钮 -->
         <el-radio-group
           v-if="item.type === 'RadioButton'"
-          v-model="searchData[item.prop]"
+          v-model="sonSearchData[item.prop]"
           :size="itemSize ? itemSize : item.size"
           :style="{ width: item.width }"
-          @change="item.change && item.change(searchData[item.prop])"
+          @change="item.change && item.change(sonSearchData[item.prop])"
         >
           <el-radio-button
             v-for="ra in item.radios"
@@ -80,8 +80,8 @@
         <!-- 复选框 -->
         <el-checkbox-group
           v-if="item.type === 'Checkbox'"
-          v-model="searchData[item.prop]"
-          @change="item.change && item.change(searchData[item.prop])"
+          v-model="sonSearchData[item.prop]"
+          @change="item.change && item.change(sonSearchData[item.prop])"
           :size="itemSize ? itemSize : item.size"
           :clearable="clearable"
           :style="{ width: item.width }"
@@ -96,9 +96,9 @@
         <!-- 日期 -->
         <el-date-picker
           v-if="item.type === 'Date'"
-          v-model="searchData[item.prop]"
+          v-model="sonSearchData[item.prop]"
           :placeholder="item.placeholder"
-          @change="item.change && item.change(searchData[item.prop])"
+          @change="item.change && item.change(sonSearchData[item.prop])"
           :size="itemSize ? itemSize : item.size"
           type="date"
           :style="{ width: item.width }"
@@ -107,8 +107,8 @@
         <!-- 时间 -->
         <el-time-picker
           v-if="item.type === 'Time'"
-          v-model="searchData[item.prop]"
-          @change="item.change && item.change(searchData[item.prop])"
+          v-model="sonSearchData[item.prop]"
+          @change="item.change && item.change(sonSearchData[item.prop])"
           :size="itemSize ? itemSize : item.size"
           :picker-options="item.pickerOptions"
           :placeholder="item.placeholder"
@@ -120,9 +120,9 @@
           v-if="item.type === 'DateTime'"
           type="datetime"
           :placeholder="item.placeholder"
-          v-model="searchData[item.prop]"
-          @change="item.change && item.change(searchData[item.prop])"
-          :disabled="item.disable && item.disable(searchData[item.prop])"
+          v-model="sonSearchData[item.prop]"
+          @change="item.change && item.change(sonSearchData[item.prop])"
+          :disabled="item.disable && item.disable(sonSearchData[item.prop])"
           :picker-options="item.pickerOptions"
           :size="itemSize ? itemSize : item.size"
           :style="{ width: item.width }"
@@ -131,30 +131,30 @@
         <el-date-picker
           v-if="item.type === 'Datetimerange'"
           type="datetimerange"
-          v-model="searchData[item.prop]"
+          v-model="sonSearchData[item.prop]"
           range-separator="~"
           :start-placeholder="item.startPlaceholder"
           :end-placeholder="item.endPlaceholder"
           :value-format="item.valueFormat"
           :picker-options="item.pickerOptions"
           :size="itemSize ? itemSize : item.size"
-          @change="item.change && item.change(searchData[item.prop])"
+          @change="item.change && item.change(sonSearchData[item.prop])"
         >
         </el-date-picker>
         <!-- 滑块 -->
         <el-slider
           v-if="item.type === 'Slider'"
-          v-model="searchData[item.prop]"
+          v-model="sonSearchData[item.prop]"
           :size="itemSize ? itemSize : item.size"
           :style="{ width: item.width }"
-          @change="item.change && item.change(searchData[item.prop])"
+          @change="item.change && item.change(sonSearchData[item.prop])"
         ></el-slider>
         <!-- 开关 -->
         <div v-if="item.type === 'Switch'" :style="{ width: item.width }">
           <el-switch
-            v-model="searchData[item.prop]"
+            v-model="sonSearchData[item.prop]"
             :size="itemSize ? itemSize : item.size"
-            @change="item.change && item.change(searchData[item.prop])"
+            @change="item.change && item.change(sonSearchData[item.prop])"
           ></el-switch>
         </div>
       </el-form-item>
@@ -215,10 +215,26 @@ export default {
       default: true,
     },
   },
+  model: {
+    // 需要双向绑定的 props 变量名称，也就是父组件通过 v-model 与子组件双向绑定的变量
+    prop: "searchData",
+    // 定义由 $emit 传递变量的名称
+    event: "searchDataChange",
+  },
   data() {
     return {
-      
+      // 子组件不能修改 props 下的变量，所以定义一个临时变量
+      sonSearchData: this.searchData,
     };
+  },
+  watch: {
+    sonSearchData: {
+      // 这里箭头函数指向可能会出现问题
+      handler: function (newVal, oldVal) {
+        this.$emit("searchDataChange", this.sonSearchData);
+      },
+      deep: true,
+    },
   },
   methods: {},
 };
