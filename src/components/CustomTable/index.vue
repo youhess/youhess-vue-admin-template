@@ -1,10 +1,9 @@
 <!--表格组件 -->
 <template>
   <section class="ces-table-page">
-    {{ filterColumnItems }}
     <!-- 表格操作按钮 -->
     <section
-      class="ces-handle"
+      class="handle-wrapper"
       v-if="isHandle && tableHandles && tableHandles.length > 0"
     >
       <el-button
@@ -21,6 +20,29 @@
     </section>
     <!-- 数据表格 -->
     <section class="ces-table">
+      <div class="filter-column" v-if="isFilterColumn">
+        <el-popover placement="bottom" width="150" trigger="click">
+          <el-checkbox-group v-model="filterColumnItems">
+            <el-checkbox
+              :label="item.label"
+              v-for="(item, index) in tableCols"
+              :key="index"
+              :disabled="filterColumnDisabledArr.includes(item.label)"
+              >{{ item.label }}</el-checkbox
+            >
+          </el-checkbox-group>
+
+          <div slot="reference">
+            <!-- <i class="el-icon-s-operation"></i> -->
+            <div>
+              <svg-icon
+                style="width: 16px; height: 16px; cursor: pointer"
+                icon-class="selectList"
+              />
+            </div>
+          </div>
+        </el-popover>
+      </div>
       <el-table
         ref="cesTable"
         style="width: 100%"
@@ -35,7 +57,7 @@
         :expand-row-keys="expandRowKeys"
         :row-class-name="tableRowClassName"
         :cell-class-name="tableCellClassName"
-        :key="tableKey"
+        :key="newTableKey"
         @cell-dblclick="tabClick"
         @select="select"
         @select-all="selectAll"
@@ -64,7 +86,7 @@
         </el-table-column>
         <!-- 数据栏 -->
         <el-table-column
-          v-for="item in tableCols"
+          v-for="item in changedTableCols"
           :key="item.id"
           :prop="item.prop"
           :label="item.label"
@@ -105,43 +127,6 @@
                     <i :class="item.isHeaderOptions['icon']"></i>
                   </span>
                 </div>
-              </div>
-
-              <!-- 表格过滤 按钮 -->
-              <div
-                v-if="item.isHeaderOptions['isFilterColumn']"
-                style="flex: 1"
-                class="right-header-wrapper"
-                slot="reference"
-              >
-                <el-popover placement="right" width="150" trigger="click">
-                  <div slot="reference">
-                    <i
-                      v-if="
-                        item.isHeaderOptions['filterColumnIcon'] &&
-                        item.isHeaderOptions['filterColumnIcon'].includes(
-                          'el-icon'
-                        )
-                      "
-                      style="float: right; margin-right: 12px; cursor: pointer"
-                      :class="item.isHeaderOptions['filterColumnIcon']"
-                    ></i>
-                    <svg-icon
-                      v-else
-                      icon-class="{item.isHeaderOptions['filterColumnIcon']}"
-                    />
-                  </div>
-                  <div>
-                    <el-checkbox-group v-model="filterColumnItems">
-                      <el-checkbox
-                        :label="item.label"
-                        v-for="(item, index) in tableCols"
-                        :key="index"
-                        >{{ item.label }}</el-checkbox
-                      >
-                    </el-checkbox-group>
-                  </div>
-                </el-popover>
               </div>
             </div>
           </template>
@@ -447,6 +432,9 @@ export default {
     tableCols: { type: Array, default: () => [] },
     // 是否显示表格复选框
     isSelection: { type: Boolean, default: false },
+    isFilterColumn: { type: Boolean, default: false },
+    filterColumnDisabledArr: { type: Array, default: () => [] },
+    filterColumnItemArr: { type: Array, default: () => [] },
     // 储备
     reserveSection: { type: Boolean, default: false },
     defaultSelections: { type: [Array, Object], default: () => null },
@@ -462,7 +450,10 @@ export default {
     },
     headerCellStyle: {
       type: Object,
-      default: () => ({ background: "#fafafa", color: "#606266" }),
+      default: () => ({
+        background: "#fafafa",
+        color: "#606266",
+      }),
     },
   },
   data() {
@@ -470,8 +461,11 @@ export default {
       dbClickRowIndex: null, // 当前点击的行索引
       dbClickCellIndex: null, // 当前点击的列索引
       tabClickLabel: "", // 当前点击的列名
-      //
-      filterColumnItems: [],
+      //label 必须唯一 唯一值
+      filterColumnItems: this.filterColumnItemArr,
+      defaultTableCols: this.tableCols, // defaultTableCols
+      changedTableCols: this.tableCols, // 默认表头 Default header
+      newTableKey: this.tableKey,
     };
   },
   watch: {
@@ -486,11 +480,28 @@ export default {
         }
       });
     },
-    // tableKey(val) {
-    //   console.log("val", val);
-    // }
+    filterColumnItems(valArr) {
+      this.changedTableCols = this.defaultTableCols.filter(
+        (item) => valArr.indexOf(item.label) >= 0
+      );
+      this.newTableKey = this.newTableKey + 1; // 为了保证table 每次都会重渲 In order to ensure the table will be re-rendered each time
+    },
+    tableKey(newVal) {
+      this.newTableKey = newVal;
+    },
   },
   methods: {
+    // 首次过滤[]为默认全选
+    handleChangedTableCols(valArr) {
+      //  没有配置filterColumnItemArr 默认为全选
+      if (valArr && valArr.length == 0) {
+        this.filterColumnItems = this.tableCols.map((item) => item.label);
+      }
+      this.changedTableCols = this.defaultTableCols.filter(
+        (item) => valArr.indexOf(item.label) >= 0
+      );
+      this.newTableKey = this.newTableKey + 1; // 为了保证table 每次都会重渲 In order to ensure the table will be re-rendered each time
+    },
     // 控制input显示 row 当前行 column 当前列
     tabClick(row, column, cell, event) {
       console.log("@cell-dblclick:被选中的row:", row);
@@ -570,6 +581,7 @@ export default {
     },
   },
   mounted() {
+    this.handleChangedTableCols(this.filterColumnItems);
     this.monitoring(); // 注册监听事件
   },
 };
@@ -579,6 +591,15 @@ export default {
   content: "*";
   color: red;
 }
+.ces-table {
+  position: relative;
+  .filter-column {
+    position: absolute;
+    z-index: 1000;
+    right: 12px;
+    top: 12px;
+  }
+}
 
 .el-pagination {
   float: right;
@@ -586,7 +607,7 @@ export default {
   margin-top: 5px;
 }
 
-.ces-handle {
+.handle-wrapper {
   margin-bottom: 24px;
 }
 
@@ -594,12 +615,14 @@ export default {
 .el-loading-spinner {
   left: calc(50% - 25px);
 }
-
-.ces-pagination {
-  display: flex;
-  justify-content: center;
-  height: 100%;
-  align-items: center;
-  margin-bottom: 24px;
+.ces-pagination-wrapper {
+  margin-top: 12px;
+  .ces-pagination {
+    display: flex;
+    justify-content: center;
+    height: 100%;
+    align-items: center;
+    margin-bottom: 24px;
+  }
 }
 </style>

@@ -25,15 +25,17 @@
           ref="CustomTable"
           :loading="tableLoading"
           :isPagination="true"
-          :isHandle="true"
           :isIndex="true"
           :isBorder="false"
           :tableData="tableData"
           :tableCols="tableCols"
           :pagination="pagination"
+          :isHandle="true"
           :tableHandles="tableHandles"
+          :isFilterColumn="true"
+          :filterColumnDisabledArr="['操作']"
           @refresh="getTable"
-          :isSelection="true"
+          :isSelection="false"
           :reserveSection="true"
           @select="selection"
           @selectionChange="selectionChange"
@@ -261,12 +263,6 @@ export default {
           width: "100",
           fixed: "right",
           name: "option",
-          isHeaderOptions: {
-            isCustomHeader: true,
-            //  是否开启 表格过滤
-            isFilterColumn: true,
-            filterColumnIcon: "el-icon-s-operation",
-          },
           btnList: [
             {
               label: "删 除",
@@ -278,7 +274,7 @@ export default {
               label: "查 看",
               type: "text",
               size: "small",
-              handle: this.handleDetailDrawer,
+              handle: (row) => {},
             },
           ],
         },
@@ -289,26 +285,26 @@ export default {
           label: "新 建",
           type: "primary",
           size: "small",
-          handle: this.handleFormDrawer,
+          handle: (row) => {},
         },
         {
           label: "批量选择",
           type: "primary",
           size: "small",
-          handle: this.showResignation,
+          handle: (row) => {},
         },
         {
           label: "导 入",
           type: "default",
           size: "small",
-          handle: this.onClick_uploadExcel,
+          handle: (row) => {},
         },
         {
           label: "导 出",
           type: "default",
           size: "small",
-          handle: this.onClick_download,
-          // isPermitted: () => this.$btnPermission.isButtonPermission("code-c14"),
+          handle: (row) => {},
+          // isShown: () => this.$btnPermission.isButtonPermission("code-c14"),
         },
       ],
       tableLoading: false,
