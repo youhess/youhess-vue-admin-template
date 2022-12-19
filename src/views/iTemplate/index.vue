@@ -1,50 +1,48 @@
 <template>
   <div class="app-container">
     <div class="toTop">
-      <el-backtop target=".toTop"></el-backtop>
+      <el-backtop target=".toTop" />
       <!-- 查询组件 模块 -->
       <div class="block-container">
         <!-- 不加v-bind 也是可以作为prop传值的 -->
         <search-form
           ref="form"
-          formSize="mini"
-          itemSize="small"
-          labelWidth="120px"
-          :clearable="true"
           v-model="searchData"
-          :searchForm="searchForm"
-          :searchHandle="searchHandle"
-        >
-        </search-form>
+          form-size="mini"
+          item-size="small"
+          label-width="120px"
+          :clearable="true"
+          :search-form="searchForm"
+          :search-handle="searchHandle"
+        />
       </div>
       <!-- 表格 模块 -->
       <div class="block-container">
         <!--  -->
         <custom-table
-          size="small"
           ref="CustomTable"
+          size="small"
           :loading="tableLoading"
-          :isPagination="true"
-          :isIndex="true"
-          :isBorder="false"
-          :tableData="tableData"
-          :tableCols="tableCols"
-          :pagination="pagination"
-          :isHandle="true"
-          :tableHandles="tableHandles"
-          :isFilterColumn="true"
-          :filterColumnDisabledArr="['操作']"
+          :is-pagination="true"
+          :is-index="true"
+          :is-border="false"
+          :table-data="tableData"
+          :table-cols="tableCols"
+          :pagination.sync="pagination"
+          :is-handle="true"
+          :table-handles="tableHandles"
+          :is-filter-column="true"
+          :filter-column-disabled-arr="['操作']"
+          :is-selection="false"
+          :reserve-section="true"
           @refresh="getTable"
-          :isSelection="false"
-          :reserveSection="true"
           @select="selection"
           @selectionChange="selectionChange"
           @rowClick="rowClick"
-        >
-        </custom-table>
+        />
       </div>
       <!-- 表单抽屉 -->
-      <div class="drawer_container"></div>
+      <div class="drawer_container" />
       <!-- 表单弹窗 -->
       <div class="dialog_container">
         <!-- 删除 -->
@@ -77,32 +75,30 @@ import { getList } from "@/api/table";
 
 // 引入组件
 import SearchForm from "@/components/SearchForm";
-import DynamicForm from "@/components/DynamicForm";
 import CustomTable from "@/components/CustomTable";
 
 export default {
   components: {
     SearchForm,
     CustomTable,
-    DynamicForm,
   },
   data() {
-    let selectItems = [
+    const selectItems = [
       { label: "未知", value: 0 },
       { label: "种类一", value: 1 },
       { label: "种类二", value: 2 },
     ];
-    let radioItems = [
+    const radioItems = [
       { label: "未知", value: 0 },
       { label: "一", value: 1 },
       { label: "二", value: 2 },
     ];
-    let radioButtonItems = [
+    const radioButtonItems = [
       { label: "未知", value: 0 },
       { label: "一", value: 1 },
       { label: "二", value: 2 },
     ];
-    let checkboxItems = [
+    const checkboxItems = [
       { label: "未知", value: 0 },
       { label: "一", value: 1 },
       { label: "二", value: 2 },
@@ -111,13 +107,12 @@ export default {
       deleteDialog: { title: "提示", visible: false, row: "" },
       // 搜索=========================================
       searchData: {
-        //查询表单的对应的值
+        // 查询表单的对应的值
         text: "",
         kindId: "",
         radio: 0,
         radiobutton: 0,
         slider: 0,
-        radiobutton: 0,
         checkbox: [],
         switch: true,
         date: "",
@@ -223,7 +218,7 @@ export default {
         },
       ],
       searchHandle: [
-        //重置和查询按钮
+        // 重置和查询按钮
         {
           label: "重 置",
           type: "default",
@@ -240,7 +235,7 @@ export default {
       // 表格============================
       tableData: [],
       tableCols: [
-        //表格列数据
+        // 表格列数据
         // {
         //   label: "人脸",
         //   prop: "faceUrl",
@@ -280,7 +275,7 @@ export default {
         },
       ],
       tableHandles: [
-        //这是表格和表单之间的一个按钮
+        // 这是表格和表单之间的一个按钮
         {
           label: "新 建",
           type: "primary",
@@ -309,7 +304,7 @@ export default {
       ],
       tableLoading: false,
       pagination: {
-        //分页数据
+        // 分页数据
         pageSize: 10,
         pageNum: 1,
         total: 0,
@@ -336,12 +331,12 @@ export default {
     rowClick(row) {
       console.log("@rowClick:被单击选项", row);
     },
-    //搜索组件-------------------------------------------------
+    // 搜索组件-------------------------------------------------
     handleReset() {
       for (var key in this.searchData) {
-        if (typeof this.searchData[key] == "number") {
+        if (typeof this.searchData[key] === "number") {
           this.$set(this.searchData, key, 0);
-        } else if (typeof this.searchData[key] == "boolean") {
+        } else if (typeof this.searchData[key] === "boolean") {
           this.$set(this.searchData, key, 0);
         } else if (Array.isArray(this.searchData[key])) {
           this.$set(this.searchData, key, []);
@@ -356,7 +351,7 @@ export default {
       console.log("查询！", this.searchData);
       this.getTable();
     },
-    //获取表格数据
+    // 获取表格数据
     async getTable() {
       try {
         this.tableLoading = true;
